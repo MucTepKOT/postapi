@@ -8,15 +8,16 @@ async def handle(request):
 
 async def predict(request):
     try:
-        r_json = await request.json()  # get json-like body
-        print(r_json['username'], r_json['scores'])
-
-        headers = request.headers  # get headers from request
-        print(headers['content_type'])
-
-        response_obj = {'status': 'success', 'message': 'your predict accepted'}
-        return web.Response(text=json.dumps(response_obj), status=200)
-        # return web.Response(text=str(x), status=200)
+        user_predict = await request.json()  # get json-like body
+        # print(user_predict['username'])
+        # print(user_predict['scores'])
+        if 'username' in user_predict and 'scores' in user_predict and len(user_predict) == 2:
+            print(user_predict['username'], user_predict['scores'])
+            response_obj = {'status': 'accepted', 'message': 'your predict accepted'}
+            return web.Response(text=json.dumps(response_obj), status=202)
+        else:
+            response_obj = {'status': 'error', 'message': 'put it into your ass pls'}
+            return web.Response(text=json.dumps(response_obj), status=400)
     except Exception as e:
         response_obj = {'status': 'failed', 'message': 'your have PAWS'}
         return web.Response(text=json.dumps(response_obj), status=500)
