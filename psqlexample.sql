@@ -10,6 +10,15 @@ CREATE TABLE IF NOT EXISTS users
   CONSTRAINT user_login_key UNIQUE (login)
 );
 
+-- simple users table
+CREATE TABLE IF NOT EXISTS users
+(
+  id SERIAL,
+  login varchar(20) NOT NULL,
+  token varchar(100) NOT NULL,
+  disabled boolean NOT NULL DEFAULT false
+ )
+
 -- and permissions for them
 CREATE TABLE IF NOT EXISTS permissions
 (
