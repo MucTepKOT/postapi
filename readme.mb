@@ -1,3 +1,25 @@
-GET/POST
-Cloud MongoDB
-PostgreSQL
+Getting Token:
+GET| "localhost:9090/"
+in headers:
+ - Name: <your name>
+
+Do your prediction:
+POST| "localhost:9090/do_predict"
+in headers:
+ - Name: <your name>
+ - Auth: <your token>
+in body of request you must transfer next data in json format:
+ - Players - player(s) who score a goal
+ - Scores - final score of match
+
+Get all of your predictions:
+GET| "localhost:9090/my_prediction"
+in headers:
+ - Name: <your name>
+ - Auth: <your token>
+
+In case of errors you get answer in json format with error description
+
+In project uses next DB:
+ - MongoDB.Atlas
+ - PostgreSQL 12
