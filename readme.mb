@@ -18,7 +18,7 @@ in headers:
  - Name: <your name>
  - Auth: <your token>
 
-In case of errors you get answer in json format with error description
+In case of errors you will get answer in json format with error description
 
 In project uses next DB:
  - MongoDB.Atlas
