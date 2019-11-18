@@ -8,7 +8,7 @@ def insert_db(user, data):
     try:
         pred.insert_one(data).inserted_id
         return 'Success'        
-    except pymongo.errors.PyMongoError as e:
+    except pymongo.errors.PyMongoError as e: 
         return 'Here is some error: %s' % e
 
 def my_prediction(user):

@@ -7,6 +7,10 @@ import postgresql
 import keygen
 
 async def main_page(request):
+    response_obj = 'Welcome to my first demo'
+    return web.Response(text=response_obj, status=200)
+
+async def registration(request):
     header = request.headers
     if 'Name' in header:
         user = header['Name']
@@ -72,6 +76,7 @@ async def predict(request):
 
 app = web.Application()
 app.add_routes([web.get('/', main_page),
+                web.get('/reg', registration),
                 web.get('/my_prediction', check),
                 web.post('/do_predict', predict)])
 logging.basicConfig(level=logging.DEBUG)
