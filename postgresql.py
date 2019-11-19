@@ -1,7 +1,8 @@
 import psycopg2
 import psycopg2.extras
+import json
 
-def check_user(user):
+def get_token(user):
     try:
         conn = psycopg2.connect(dbname='postapi_security', user='muctepkot', password='muctepkot', host='localhost')
         print('Postgres connected', user)
@@ -16,17 +17,22 @@ def check_user(user):
         print('Postgres failed:{0}'.format(e))
         return 'Error'
 
-def create_user(user, token):
+def create_user(user, password, token):
     try:
         conn = psycopg2.connect(dbname='postapi_security', user='muctepkot', password='muctepkot', host='localhost')
     except psycopg2.Error as e:
         print('Postgres failed:{0}'.format(e))
     cur = conn.cursor()
-    cur.execute("INSERT INTO users(id, user_name, token, disabled) VALUES (DEFAULT, '{0}', '{1}', DEFAULT)".format(user, token))
-    conn.commit()
+    try:
+        cur.execute("INSERT INTO users(id, user_name, password, token, disabled) VALUES (DEFAULT, '{0}', '{1}', '{2}', DEFAULT)".format(user, password, token))
+        conn.commit()
+        return token
+    except psycopg2.IntegrityError as err:
+        print(str(err))
+        return 'Error'
     cur.close()
     conn.close()
-    return 'user created'
+    
 
 # try:
 #     conn = psycopg2.connect(dbname='postapi_security', user='muctepkot', password='muctepkot', host='localhost')

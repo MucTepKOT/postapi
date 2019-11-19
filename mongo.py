@@ -23,5 +23,5 @@ try:
     db = client.mongodb
     pred = db.predictions
     print('Database connected')
-except pymongo.errors.PyMongoError as e:
+except pymongo.errors.PyMongoError(message='pizda') as e:
     print('Here is some error: %s' % e)

@@ -14,10 +14,11 @@ CREATE TABLE IF NOT EXISTS users
 CREATE TABLE IF NOT EXISTS users
 (
   id SERIAL,
-  login varchar(20) NOT NULL,
-  token varchar(100) NOT NULL,
+  user_name varchar(20) NOT NULL,
+  password varchar(50) NOT NULL,
+  token varchar(200) NOT NULL,  
   disabled boolean NOT NULL DEFAULT false
- )
+ );
 
 -- and permissions for them
 CREATE TABLE IF NOT EXISTS permissions
