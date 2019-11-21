@@ -16,11 +16,11 @@ async def get_prediction(request):
         user_name = header['user'].lower()
         token = header['access_token']
         db_token = postgresql.get_token(user_name)
-        if keygen.verify_hash(token, db_token) == True:
+        if token == db_token and postgresql.token_alive(token) == True:
             response_obj = {'predictions' : mongo.my_prediction(user_name)}
             return web.Response(text=json.dumps(response_obj), status=200)
         else:
-            response_obj = {'status': 'auth_error', 'message': 'ti cho psina, kuda polez?'}
+            response_obj = {'status': 'auth_error', 'message': "You aren't authorize or your token not alive"}
             return web.Response(text=json.dumps(response_obj), status=401)
     else:
         response_obj = {'status': 'message_error', 'message': 'incorrect parametres'}
@@ -31,15 +31,19 @@ async def registration(request):
     if 'user' and 'password' in user_registration and len(user_registration) == 2:
         user_name = user_registration['user'].lower()
         password = user_registration['password']
-        user_password = keygen.hash(user_name + password)
-        token = keygen.hash(user_name + password)
-        user_exist = postgresql.create_user(user_name, user_password, token)
-        if user_exist == 'Error':
+        if postgresql.check_user(user_name) == True:
             response_obj = {'Error': 'User already exist'}
             return web.Response(text=json.dumps(response_obj), status=406)
         else:
-            response_obj = {'your access_token': token}
-            return web.Response(text=json.dumps(response_obj), status=200)
+            user_password = keygen.hash(user_name + password)
+            token = keygen.hash(user_name + password)
+            reg = postgresql.create_user(user_name, user_password, token)
+            if reg == 'Error':
+                response_obj = {'Error': 'Something went wrong, try again pls'}
+                return web.Response(text=json.dumps(response_obj), status=400)
+            else:
+                response_obj = {'your access_token': token}
+                return web.Response(text=json.dumps(response_obj), status=200)
     else:
         response_obj = {'status': 'message_error', 'message': 'give me your Name and Password'}
         return web.Response(text=json.dumps(response_obj), status=400)
@@ -52,26 +56,22 @@ async def post_prediction(request):
             user_name = header['user'].lower()
             token = header['access_token']
             db_token = postgresql.get_token(user_name)
-            if db_token == None:
-                response_obj = {'status': 'auth_error', 'message': 'ti cho psina, kuda polez?'}
-                return web.Response(text=json.dumps(response_obj), status=401)
-            else:
-                if keygen.verify_hash(token, db_token) == True:
-                    if 'username' and 'scores' in user_predict and len(user_predict) == 2:
-                        data = user_predict
-                        inserting = mongo.insert_db(user_name, data)
-                        if inserting == 'Success':
-                            response_obj = {'status': 'accepted', 'message': 'your predict accepted'}
-                            return web.Response(text=json.dumps(response_obj), status=202)
-                        else:
-                            response_obj = {'status': 'accepted', 'message': 'something went wrong, repeat pls'}
-                            return web.Response(text=json.dumps(response_obj), status=400)
+            if token == db_token and postgresql.token_alive(token) == True:
+                if 'username' and 'scores' in user_predict and len(user_predict) == 2:
+                    data = user_predict
+                    inserting = mongo.insert_db(user_name, data)
+                    if inserting == 'Success':
+                        response_obj = {'status': 'accepted', 'message': 'your predict accepted'}
+                        return web.Response(text=json.dumps(response_obj), status=202)
                     else:
-                        response_obj = {'status': 'message_error', 'message': 'pls post it into your ass'}
+                        response_obj = {'status': 'accepted', 'message': 'something went wrong, try again pls'}
                         return web.Response(text=json.dumps(response_obj), status=400)
                 else:
-                    response_obj = {'status': 'auth_error', 'message': 'ti cho psina, kuda polez?'}
-                    return web.Response(text=json.dumps(response_obj), status=401)
+                    response_obj = {'status': 'message_error', 'message': 'pls post it into your ass'}
+                    return web.Response(text=json.dumps(response_obj), status=400)
+            else:
+                response_obj = {'status': 'auth_error', 'message': "You aren't authorize or your token not alive"}
+                return web.Response(text=json.dumps(response_obj), status=401)
         else:
             response_obj = {'status': 'auth_error', 'message': 'ti cho psina, kuda polez?'}
             return web.Response(text=json.dumps(response_obj), status=401)
