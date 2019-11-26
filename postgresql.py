@@ -5,7 +5,7 @@ import time
 
 def check_user(user):
     try:
-        conn = psycopg2.connect(dbname='postapi_security', user='kot', password='kot', host='localhost')
+        conn = psycopg2.connect(dbname='postapi_security', user='muctepkot', password='muctepkot', host='localhost')
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT EXISTS(SELECT 1 FROM users WHERE user_name = '%s')" % user)
         result = cur.fetchone()
@@ -17,7 +17,7 @@ def check_user(user):
 
 def create_user(user, password, token):
     try:
-        conn = psycopg2.connect(dbname='postapi_security', user='kot', password='kot', host='localhost')
+        conn = psycopg2.connect(dbname='postapi_security', user='muctepkot', password='muctepkot', host='localhost')
     except psycopg2.Error as err:
         print('Postgres failed:{0}'.format(err))
     cur = conn.cursor()
@@ -34,7 +34,7 @@ def create_user(user, password, token):
 
 def get_token(user):
     try:
-        conn = psycopg2.connect(dbname='postapi_security', user='kot', password='kot', host='localhost')
+        conn = psycopg2.connect(dbname='postapi_security', user='muctepkot', password='muctepkot', host='localhost')
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT token FROM users WHERE user_name = '%s'" % user)
         result = cur.fetchone()
@@ -47,14 +47,14 @@ def get_token(user):
 
 def token_alive(token):
     try:
-        conn = psycopg2.connect(dbname='postapi_security', user='kot', password='kot', host='localhost')
+        conn = psycopg2.connect(dbname='postapi_security', user='muctepkot', password='muctepkot', host='localhost')
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT time FROM users WHERE token = '%s'" % token)
         result = cur.fetchone()
         cur.close()
         conn.close()
         current_time = int(time.time())
-        if current_time - result[0] > 60:
+        if current_time - result[0] > 3600:
             return False
         else:
             return True
@@ -64,7 +64,7 @@ def token_alive(token):
 
 def update_token(user, token):
     try:
-        conn = psycopg2.connect(dbname='postapi_security', user='kot', password='kot', host='localhost')
+        conn = psycopg2.connect(dbname='postapi_security', user='muctepkot', password='muctepkot', host='localhost')
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         current_time = int(time.time())
         cur.execute("UPDATE users SET token = '%s' WHERE user_name = '%s'" % (token, user))
@@ -79,7 +79,7 @@ def update_token(user, token):
 
 def check_password(user):
     try:
-        conn = psycopg2.connect(dbname='postapi_security', user='kot', password='kot', host='localhost')
+        conn = psycopg2.connect(dbname='postapi_security', user='muctepkot', password='muctepkot', host='localhost')
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT password FROM users WHERE user_name = '%s'" % user)
         result = cur.fetchone()
