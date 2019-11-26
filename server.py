@@ -5,6 +5,7 @@ import json
 import mongo
 import postgresql
 import keygen
+from datetime import datetime
 
 async def main_page(request):
     response_obj = 'Welcome to my API'
@@ -17,7 +18,9 @@ async def get_prediction(request):
         token = header['access_token']
         db_token = postgresql.get_token(user_name)
         if token == db_token and postgresql.token_alive(token) == True:
-            response_obj = {'predictions' : mongo.my_prediction(user_name)}
+            db = 'mongodb'
+            collections = 'predictions'
+            response_obj = {'predictions' : mongo.my_prediction(db, collections, user_name)}
             return web.Response(text=json.dumps(response_obj), status=200)
         else:
             response_obj = {'status': 'auth_error', 'message': "You aren't authorize or your token not alive"}
@@ -85,8 +88,12 @@ async def post_prediction(request):
             db_token = postgresql.get_token(user_name)
             if token == db_token and postgresql.token_alive(token) == True:
                 if 'username' and 'scores' in user_predict and len(user_predict) == 2:
-                    data = user_predict
-                    inserting = mongo.insert_db(user_name, data)
+                    db = 'mongodb'
+                    collections = 'predictions'
+                    timestamp = datetime.timestamp(datetime.now())
+                    user_predict['timestamp'] = int(timestamp)
+                    user_predict['user_name'] = user_name
+                    inserting = mongo.insert_db(db, collections, **user_predict)
                     if inserting == 'Success':
                         response_obj = {'status': 'accepted', 'message': 'your predict accepted'}
                         return web.Response(text=json.dumps(response_obj), status=202)
