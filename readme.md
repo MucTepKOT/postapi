@@ -21,7 +21,6 @@ in headers:
  - user: <your name>
  - access_token: <your token>
 in body of request you must transfer next data in json format:
- - players: player(s) who score a goal
  - scores: final score of match
 
 Get all of your predictions:
