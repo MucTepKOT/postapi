@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 url = 'https://server1.api-football.com/'
-token = '4d6eb732d555294aa9db01b0adfdc475'
+token = ''
 headers = {'X-RapidAPI-Key': token, 'Accept': 'application/json'}
 
 def all_matches():
