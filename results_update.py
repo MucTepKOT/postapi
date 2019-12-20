@@ -2,12 +2,20 @@ import requests
 import json
 import pymongo
 from datetime import datetime
+import yaml
 
 ''' This programm is for updating matches results and counting user's points, don't forget to configure cron'''
 
+try:
+    with open(r'config.yaml') as cfg:
+        config = yaml.load(cfg, Loader=yaml.FullLoader)
+        # logging.info('Config successfully loaded')
+except yaml.error.YAMLError as err:
+    # logging.error(f'Yaml config error: {err}')
+    print(str(err))
 
-url = 'https://server1.api-football.com/'
-token = ''
+url = config['api_url']
+token = config['api_token']
 headers = {'X-RapidAPI-Key': token, 'Accept': 'application/json'}
 
 def all_matches():
@@ -21,7 +29,7 @@ def all_matches():
         return 'Error'
 
 def connect_mongo():
-    mongo_atlas = "mongodb+srv://muctepkot:Aegis2018@kot-elknu.gcp.mongodb.net/test?retryWrites=true&w=majority"
+    mongo_atlas = config['mongo_atlas']
     client = pymongo.MongoClient(mongo_atlas)
     return client
 

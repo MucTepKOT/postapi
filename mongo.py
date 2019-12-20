@@ -1,12 +1,20 @@
 import pymongo
 import logging
+import yaml
+
+try:
+    with open(r'config.yaml') as cfg:
+        config = yaml.load(cfg, Loader=yaml.FullLoader)
+        logging.info('Config successfully loaded')
+except yaml.error.YAMLError as err:
+    logging.error(f'Yaml config error: {err}')
 
 log_format = '%(asctime)s %(filename)s: %(message)s'
 logging.basicConfig(filename="server.log", format=log_format, level=logging.DEBUG)
 
 def connect_mongo():
     try:
-        mongo_atlas = "mongodb+srv://muctepkot:pass@kot-elknu.gcp.mongodb.net/test?retryWrites=true&w=majority"
+        mongo_atlas = config['mongo_atlas']
         client = pymongo.MongoClient(mongo_atlas)
         client.admin.command('ismaster')
         logging.info('MongoDB connected')

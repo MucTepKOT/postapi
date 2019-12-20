@@ -7,6 +7,19 @@ import postgresql
 import keygen
 import requests
 from datetime import datetime, timedelta
+import yaml
+
+try:
+    with open(r'config.yaml') as cfg:
+        config = yaml.load(cfg, Loader=yaml.FullLoader)
+        logging.info('Config successfully loaded')
+except yaml.error.YAMLError as err:
+    logging.error(f'Yaml config error: {err}')
+
+log_format = '%(asctime)s %(filename)s: %(message)s'
+logging.basicConfig(filename="server.log", format=log_format, level=logging.DEBUG)
+
+db = mongo.connect_mongo()
 
 async def main_page(request):
     response_obj = 'Welcome to my API'
@@ -116,7 +129,7 @@ async def post_prediction(request):
             response_obj = {'status': 'auth_error', 'message': "You aren't authorize or your token not alive"}
             return web.Response(text=json.dumps(response_obj), status=401)
     except Exception as err:
-        print(str(err))
+        logging.error(f'Error: {str(err)}')
         response_obj = {'status': 'failed', 'message': 'you have PAWS'}
         return web.Response(text=json.dumps(response_obj), status=500)
 
@@ -138,8 +151,8 @@ async def get_points(request):
         return web.Response(text=json.dumps(response_obj), status=400)
 
 async def next_match(request):
-    url = 'https://server1.api-football.com/'
-    token = ''
+    url = config['api_url']
+    token = config['api_token']
     headers = {'X-RapidAPI-Key': token, 'Accept': 'application/json'}
     endpoint = 'fixtures/team/596'
     now = datetime.now()
@@ -148,15 +161,16 @@ async def next_match(request):
         r = requests.get(f'{url}{endpoint}', headers=headers)
         response = json.loads(r.text)
     except requests.exceptions.ConnectionError as err:
-        print(str(err))
-        return 'Error'
+        logging.error(f'Error: {str(err)}')
+        response_obj = {'status': 'error', 'message': str(err)}
+        return web.Response(text=json.dumps(response_obj), status=400)
     for i in response['api']['fixtures']:
         match_time = i['event_timestamp']
         time = datetime.fromtimestamp(match_time) + timedelta()  # timedelta(hours=3)
         read = time.strftime('%d-%m-%Y(%H:%M)')
         before_date = now + timedelta(days=7)
         if time > now and time < before_date:
-            teams = f"{i['homeTeam']['team_name']}  -  {i['awayTeam']['team_name']}"
+            teams = f"{i['homeTeam']['team_name']} - {i['awayTeam']['team_name']}"
             one_match = f'{str(read)} {teams}'
             matches.append(one_match)
     if matches:
@@ -175,9 +189,4 @@ app.add_routes([web.get('/', main_page),
                 web.get('/get_points', get_points),
                 web.get('/next_match', next_match)])
 
-log_format = '%(asctime)s %(filename)s: %(message)s'
-logging.basicConfig(filename="server.log", format=log_format, level=logging.DEBUG)
-
-db = mongo.connect_mongo()
-
-web.run_app(app, host='localhost', port=9090)
+web.run_app(app, host=config['web_host'], port=config['web_port'])
