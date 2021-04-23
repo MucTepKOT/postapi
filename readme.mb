@@ -1,9 +1,9 @@
-Getting Token:
+Get Token:
 GET| "localhost:9090/"
 in headers:
  - Name: <your name>
 
-Do your prediction:
+Send your prediction:
 POST| "localhost:9090/do_predict"
 in headers:
  - Name: <your name>
@@ -20,6 +20,6 @@ in headers:
 
 In case of errors you will get answer in json format with error description
 
-In project uses next DB:
+In project was used next DBs:
  - MongoDB.Atlas
  - PostgreSQL 12
